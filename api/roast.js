@@ -14,11 +14,17 @@ export default async function handler(req, res) {
   }
 
   try {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    
+    if (!apiKey) {
+      return res.status(500).json({ error: 'API key not configured' });
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
@@ -46,13 +52,25 @@ ${cvContent}`
     });
 
     const data = await response.json();
+    
+    // Si Anthropic devuelve error, lo mostramos
+    if (data.error) {
+      console.error('Anthropic error:', JSON.stringify(data.error));
+      return res.status(500).json({ error: data.error.message || 'Anthropic API error' });
+    }
+
+    if (!data.content || !data.content[0]) {
+      console.error('Unexpected response:', JSON.stringify(data));
+      return res.status(500).json({ error: 'Unexpected API response' });
+    }
+
     const rawText = data.content[0].text;
     const cleaned = rawText.replace(/```json|```/g, '').trim();
     const result = JSON.parse(cleaned);
     return res.status(200).json(result);
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Something went wrong.' });
+    console.error('Handler error:', err.message);
+    return res.status(500).json({ error: err.message });
   }
 }
