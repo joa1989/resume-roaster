@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1500,
         messages: [{
           role: 'user',
@@ -53,7 +53,6 @@ ${cvContent}`
 
     const data = await response.json();
     
-    // Si Anthropic devuelve error, lo mostramos
     if (data.error) {
       console.error('Anthropic error:', JSON.stringify(data.error));
       return res.status(500).json({ error: data.error.message || 'Anthropic API error' });
