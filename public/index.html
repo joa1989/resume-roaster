@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Resume Roaster 🔥 — Brutal AI Feedback on Your CV</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root {
     --fire: #FF4500;
@@ -455,12 +456,12 @@
 
 <section class="upload-section" id="upload-section">
   <div class="upload-zone" id="upload-zone">
-    <input type="file" id="file-input" accept=".txt,.doc,.docx"/>
+    <input type="file" id="file-input" accept=".txt,.doc,.docx,.pdf"/>
     <span class="upload-icon">📄</span>
     <div class="upload-title">DROP YOUR CV HERE</div>
-    <div class="upload-sub">Word or TXT — we'll handle it</div>
+    <div class="upload-sub">PDF, Word or TXT — we'll handle it</div>
     <div class="upload-btn">Choose File</div>
-    <div class="file-types">.doc · .docx · .txt</div>
+    <div class="file-types">.pdf · .doc · .docx · .txt</div>
   </div>
 
   <div class="or-divider">or paste your CV text below</div>
@@ -593,12 +594,34 @@
   });
 
   function handleFile(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      document.getElementById('cv-text').value = e.target.result;
-      cvContent = e.target.result;
-    };
-    reader.readAsText(file);
+    if (file.type === 'application/pdf') {
+      extractPDF(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('cv-text').value = e.target.result;
+        cvContent = e.target.result;
+      };
+      reader.readAsText(file);
+    }
+  }
+
+  async function extractPDF(file) {
+    try {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        fullText += content.items.map(item => item.str).join(' ') + '\n';
+      }
+      document.getElementById('cv-text').value = fullText;
+      cvContent = fullText;
+    } catch (err) {
+      alert('Could not read PDF. Please paste your CV text instead.');
+    }
   }
 
   async function startRoast() {
@@ -664,3 +687,7 @@
 </script>
 </body>
 </html>
+Listo
+Copiá todo ese bloque desde <!DOCTYPE html> hasta </html>, pegalo en GitHub reemplazando el public/index.html actual, y commit. 🔥
+
+
