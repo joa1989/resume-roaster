@@ -6,6 +6,8 @@
 <title>Resume Roaster 🔥 — Brutal AI Feedback on Your CV</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init("eiENqjftW_C-RJ3nb");</script>
 <style>
   :root {
     --fire: #FF4500;
@@ -421,6 +423,93 @@
 
   .hidden { display: none !important; }
 
+  /* EMAIL MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-box {
+    background: var(--ash);
+    border: 1px solid var(--smoke);
+    border-top: 4px solid var(--fire);
+    border-radius: 16px;
+    padding: 40px 36px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal-icon { font-size: 44px; margin-bottom: 16px; display: block; }
+
+  .modal-box h3 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 32px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .modal-box p {
+    color: var(--gray);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .modal-box p strong { color: var(--white); }
+
+  .modal-input {
+    width: 100%;
+    background: var(--smoke);
+    border: 2px solid #333;
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: var(--white);
+    font-size: 16px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.3s;
+  }
+
+  .modal-input:focus { border-color: var(--fire); }
+  .modal-input::placeholder { color: #555; }
+
+  .modal-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--fire), var(--fire2));
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .modal-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,69,0,0.4); }
+  .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .modal-cancel {
+    margin-top: 12px;
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .modal-cancel:hover { color: var(--gray); }
+
   @media (max-width: 600px) {
     header { padding: 16px 20px; }
     .hero { padding: 48px 20px 40px; }
@@ -526,7 +615,7 @@
     </ul>
 
     <!-- REEMPLAZÁ ESTA URL CON TU LINK DE LEMONSQUEEZY -->
-    <a href="https://cvroaster.lemonsqueezy.com/checkout/buy/c690d639-d52a-493f-a9f6-0e63a888d18c" class="pay-btn" target="_blank">
+    <a href="#" class="pay-btn" onclick="openModal(); return false;">
       💳 GET MY FIXED RESUME — $9
     </a>
     <div class="pay-note">🔒 Secure payment · Instant delivery · 100% satisfaction or refund</div>
@@ -571,6 +660,20 @@
     </div>
   </div>
 </section>
+
+<!-- EMAIL MODAL -->
+<div class="modal-overlay hidden" id="email-modal">
+  <div class="modal-box">
+    <span class="modal-icon">📬</span>
+    <h3>WHERE DO WE SEND IT?</h3>
+    <p>Enter your email and we'll send your <strong>AI-fixed resume in minutes</strong> after payment. No spam, ever.</p>
+    <input type="email" class="modal-input" id="customer-email" placeholder="your@email.com"/>
+    <button class="modal-btn" id="modal-pay-btn" onclick="submitEmail()">
+      💳 CONTINUE TO PAYMENT
+    </button>
+    <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
 
 <footer>
   © 2025 ResumeRoaster · Built with 🔥 and brutal honesty · Not responsible for ego damage
@@ -672,6 +775,43 @@
 
     document.getElementById('result-section').classList.add('active');
     document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function openModal() {
+    document.getElementById('email-modal').classList.remove('hidden');
+    document.getElementById('customer-email').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('email-modal').classList.add('hidden');
+    document.getElementById('customer-email').value = '';
+  }
+
+  async function submitEmail() {
+    const email = document.getElementById('customer-email').value.trim();
+    if (!email || !email.includes('@')) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    const btn = document.getElementById('modal-pay-btn');
+    btn.disabled = true;
+    btn.textContent = 'SENDING...';
+
+    try {
+      await emailjs.send('service_9af93co', 'template_mh6mgwq', {
+        customer_email: email,
+        cv_content: cvContent
+      });
+    } catch (err) {
+      console.error('EmailJS error:', err);
+    }
+
+    // Redirect to LemonSqueezy regardless
+    window.open('https://cvroaster.lemonsqueezy.com/checkout/buy/c690d639-d52a-493f-a9f6-0e63a888d18c', '_blank');
+    closeModal();
+    btn.disabled = false;
+    btn.textContent = '💳 CONTINUE TO PAYMENT';
   }
 
   function resetApp() {
