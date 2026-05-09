@@ -1,9 +1,13 @@
+export const config = {
+  api: { bodyParser: true }
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { cvContent } = req.body;
+  const cvContent = req.body?.cvContent;
 
   if (!cvContent || cvContent.length < 50) {
     return res.status(400).json({ error: 'CV content too short' });
@@ -35,7 +39,7 @@ export default async function handler(req, res) {
   ]
 }
 
-Resume to analyze:
+Resume:
 ${cvContent}`
         }]
       })
@@ -49,6 +53,6 @@ ${cvContent}`
 
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    return res.status(500).json({ error: 'Something went wrong.' });
   }
 }
