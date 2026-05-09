@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Resume Roaster 🔥 — Brutal AI Feedback on Your CV</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --fire: #FF4500;
+    --fire2: #FF6B00;
+    --coal: #0D0D0D;
+    --ash: #1A1A1A;
+    --smoke: #2A2A2A;
+    --ember: #FF8C42;
+    --white: #F5F0EB;
+    --gray: #888;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--coal);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  header {
+    border-bottom: 1px solid var(--smoke);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(13,13,13,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--fire);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo span { color: var(--white); }
+
+  .badge {
+    background: var(--fire);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .hero {
+    text-align: center;
+    padding: 80px 20px 60px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--fire);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(64px, 12vw, 130px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+  }
+
+  .hero h1 .highlight {
+    color: var(--fire);
+    display: block;
+    position: relative;
+  }
+
+  .hero h1 .highlight::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--fire), transparent);
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--gray);
+    max-width: 520px;
+    margin: 0 auto 48px;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .hero-sub strong { color: var(--white); font-weight: 500; }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-bottom: 60px;
+    flex-wrap: wrap;
+  }
+
+  .stat { text-align: center; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 42px;
+    color: var(--fire);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .upload-section {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--smoke);
+    border-radius: 12px;
+    padding: 60px 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: var(--ash);
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--fire);
+    background: rgba(255,69,0,0.05);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon { font-size: 52px; margin-bottom: 16px; display: block; }
+  .upload-title { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 1px; margin-bottom: 8px; }
+  .upload-sub { font-size: 14px; color: var(--gray); margin-bottom: 24px; }
+
+  .upload-btn {
+    display: inline-block;
+    background: var(--fire);
+    color: white;
+    padding: 14px 36px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 15px;
+    pointer-events: none;
+  }
+
+  .file-types { margin-top: 16px; font-family: 'DM Mono', monospace; font-size: 12px; color: #555; }
+
+  .or-divider {
+    text-align: center;
+    margin: 24px 0;
+    position: relative;
+    color: var(--gray);
+    font-size: 13px;
+  }
+
+  .or-divider::before, .or-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 42%;
+    height: 1px;
+    background: var(--smoke);
+  }
+  .or-divider::before { left: 0; }
+  .or-divider::after { right: 0; }
+
+  textarea {
+    width: 100%;
+    background: var(--ash);
+    border: 2px solid var(--smoke);
+    border-radius: 12px;
+    padding: 20px;
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 160px;
+    transition: border-color 0.3s;
+    outline: none;
+  }
+
+  textarea:focus { border-color: var(--fire); }
+  textarea::placeholder { color: #444; }
+
+  .roast-btn {
+    width: 100%;
+    margin-top: 24px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--fire), var(--fire2));
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 26px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .roast-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,69,0,0.4); }
+  .roast-btn:active { transform: translateY(0); }
+  .roast-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .loading.active { display: block; }
+
+  .fire-loader {
+    font-size: 60px;
+    animation: burn 0.5s infinite alternate;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  @keyframes burn {
+    from { transform: scale(1) rotate(-3deg); }
+    to { transform: scale(1.1) rotate(3deg); }
+  }
+
+  .loading-text { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 2px; color: var(--fire); margin-bottom: 8px; }
+  .loading-sub { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--gray); animation: blink 1.4s infinite; }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .result-section { display: none; max-width: 800px; margin: 0 auto; padding: 0 20px 80px; }
+  .result-section.active { display: block; }
+
+  .result-header { text-align: center; margin-bottom: 40px; }
+
+  .result-header h2 { font-family: 'Bebas Neue', cursive; font-size: 56px; letter-spacing: 2px; color: var(--fire); margin-bottom: 8px; }
+  .result-header p { color: var(--gray); font-size: 16px; }
+
+  .score-card {
+    background: var(--ash);
+    border: 1px solid var(--smoke);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .score-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid var(--fire);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(255,69,0,0.08);
+  }
+
+  .score-num { font-family: 'Bebas Neue', cursive; font-size: 42px; color: var(--fire); line-height: 1; }
+  .score-label { font-size: 10px; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; }
+  .score-verdict { flex: 1; }
+  .score-verdict h3 { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 1px; margin-bottom: 8px; color: var(--ember); }
+  .score-verdict p { font-size: 15px; color: var(--gray); line-height: 1.6; }
+
+  .roast-card {
+    background: var(--ash);
+    border: 1px solid var(--smoke);
+    border-left: 4px solid var(--fire);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .roast-card::before { content: '🔥'; position: absolute; top: 20px; right: 24px; font-size: 20px; opacity: 0.3; }
+  .roast-category { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--fire); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .roast-text { font-size: 16px; line-height: 1.7; color: var(--white); }
+
+  .upgrade-wall {
+    background: var(--ash);
+    border: 1px solid var(--smoke);
+    border-radius: 16px;
+    padding: 48px 40px;
+    text-align: center;
+    margin-top: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upgrade-wall::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top, rgba(255,69,0,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .blurred-preview { background: var(--smoke); border-radius: 8px; padding: 24px; margin-bottom: 32px; filter: blur(6px); user-select: none; pointer-events: none; }
+  .blurred-line { height: 14px; background: linear-gradient(90deg, #444, #333); border-radius: 4px; margin-bottom: 10px; }
+
+  .upgrade-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+
+  .upgrade-wall h3 { font-family: 'Bebas Neue', cursive; font-size: 38px; letter-spacing: 2px; margin-bottom: 12px; }
+  .upgrade-wall p { color: var(--gray); font-size: 16px; max-width: 420px; margin: 0 auto 32px; line-height: 1.6; }
+
+  .price-tag { display: inline-flex; align-items: baseline; gap: 6px; margin-bottom: 28px; }
+  .price-currency { font-size: 20px; color: var(--fire); font-weight: 600; }
+  .price-amount { font-family: 'Bebas Neue', cursive; font-size: 72px; color: var(--fire); line-height: 1; }
+  .price-period { font-size: 16px; color: var(--gray); }
+
+  .upgrade-features { list-style: none; text-align: left; max-width: 340px; margin: 0 auto 32px; }
+  .upgrade-features li { padding: 8px 0; font-size: 15px; color: var(--white); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--smoke); }
+  .upgrade-features li:last-child { border-bottom: none; }
+  .upgrade-features li::before { content: '✓'; color: var(--fire); font-weight: 700; font-size: 16px; }
+
+  .pay-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--fire), var(--fire2));
+    color: white;
+    padding: 18px 52px;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 24px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(255,69,0,0.3);
+  }
+
+  .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,69,0,0.5); }
+  .pay-note { margin-top: 12px; font-size: 12px; color: #555; font-family: 'DM Mono', monospace; }
+
+  .how-section { max-width: 800px; margin: 0 auto; padding: 0 20px 80px; }
+  .section-title { font-family: 'Bebas Neue', cursive; font-size: 48px; letter-spacing: 2px; text-align: center; margin-bottom: 48px; }
+
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+
+  .step { background: var(--ash); border: 1px solid var(--smoke); border-radius: 12px; padding: 28px 24px; text-align: center; }
+  .step-num { font-family: 'Bebas Neue', cursive; font-size: 52px; color: var(--fire); opacity: 0.4; line-height: 1; margin-bottom: 12px; }
+  .step-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+  .step h4 { font-weight: 600; margin-bottom: 8px; font-size: 16px; }
+  .step p { font-size: 14px; color: var(--gray); line-height: 1.5; }
+
+  .testimonials { max-width: 800px; margin: 0 auto; padding: 0 20px 80px; }
+  .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .testi-card { background: var(--ash); border: 1px solid var(--smoke); border-radius: 12px; padding: 24px; }
+  .testi-stars { color: var(--fire); font-size: 14px; margin-bottom: 12px; }
+  .testi-text { font-size: 14px; line-height: 1.6; color: var(--gray); margin-bottom: 16px; font-style: italic; }
+  .testi-author { font-size: 13px; font-weight: 600; color: var(--white); }
+  .testi-role { font-size: 12px; color: #555; margin-top: 2px; }
+
+  footer { border-top: 1px solid var(--smoke); padding: 32px 40px; text-align: center; color: #444; font-size: 13px; font-family: 'DM Mono', monospace; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    header { padding: 16px 20px; }
+    .hero { padding: 48px 20px 40px; }
+    .stats { gap: 24px; }
+    .score-card { flex-direction: column; text-align: center; }
+    .upgrade-wall { padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🔥 <span>Resume</span>Roaster</div>
+  <div class="badge">🔴 Live Now</div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">// AI-Powered Brutal Honesty</div>
+  <h1>
+    YOUR RESUME
+    <span class="highlight">SUCKS.</span>
+    LET'S FIX IT.
+  </h1>
+  <p class="hero-sub">
+    Our AI reads your CV like a <strong>brutally honest recruiter</strong> who's seen 10,000 resumes and has zero patience for BS. Free roast. Optimized version for $9.
+  </p>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">4,821</div><div class="stat-label">CVs Roasted</div></div>
+    <div class="stat"><div class="stat-num">94%</div><div class="stat-label">Got Interviews After</div></div>
+    <div class="stat"><div class="stat-num">$9</div><div class="stat-label">vs $200 with a human</div></div>
+  </div>
+</section>
+
+<section class="upload-section" id="upload-section">
+  <div class="upload-zone" id="upload-zone">
+    <input type="file" id="file-input" accept=".txt,.doc,.docx"/>
+    <span class="upload-icon">📄</span>
+    <div class="upload-title">DROP YOUR CV HERE</div>
+    <div class="upload-sub">Word or TXT — we'll handle it</div>
+    <div class="upload-btn">Choose File</div>
+    <div class="file-types">.doc · .docx · .txt</div>
+  </div>
+
+  <div class="or-divider">or paste your CV text below</div>
+
+  <textarea id="cv-text" placeholder="Paste your resume / CV text here..."></textarea>
+
+  <button class="roast-btn" id="roast-btn" onclick="startRoast()">
+    🔥 ROAST MY RESUME — IT'S FREE
+  </button>
+</section>
+
+<div class="loading" id="loading">
+  <span class="fire-loader">🔥</span>
+  <div class="loading-text">INCINERATING YOUR CV...</div>
+  <div class="loading-sub">Our AI is reading every painful line...</div>
+</div>
+
+<section class="result-section" id="result-section">
+  <div class="result-header">
+    <h2>🔥 THE VERDICT IS IN</h2>
+    <p>Here's what our AI really thinks about your resume</p>
+  </div>
+
+  <div class="score-card">
+    <div class="score-circle">
+      <div class="score-num" id="score-num">--</div>
+      <div class="score-label">/ 100</div>
+    </div>
+    <div class="score-verdict">
+      <h3 id="verdict-title">Loading...</h3>
+      <p id="verdict-desc"></p>
+    </div>
+  </div>
+
+  <div id="roast-cards"></div>
+
+  <div class="upgrade-wall">
+    <div class="blurred-preview">
+      <div class="blurred-line" style="width:80%"></div>
+      <div class="blurred-line" style="width:95%"></div>
+      <div class="blurred-line" style="width:70%"></div>
+      <div class="blurred-line" style="width:88%"></div>
+      <div class="blurred-line"></div>
+    </div>
+
+    <span class="upgrade-icon">⚡</span>
+    <h3>GET YOUR FIXED RESUME</h3>
+    <p>Stop reading about what's wrong. Get the AI-rewritten version that actually gets callbacks.</p>
+
+    <div class="price-tag">
+      <span class="price-currency">$</span>
+      <span class="price-amount">9</span>
+      <span class="price-period">one-time</span>
+    </div>
+
+    <ul class="upgrade-features">
+      <li>Full AI-rewritten resume (ATS optimized)</li>
+      <li>Bullet points that sound human & powerful</li>
+      <li>Professional summary that opens doors</li>
+      <li>Skills section that beats the algorithm</li>
+      <li>Instant download — no waiting</li>
+    </ul>
+
+    <!-- REEMPLAZÁ ESTA URL CON TU LINK DE LEMONSQUEEZY -->
+    <a href="YOUR_LEMONSQUEEZY_LINK_HERE" class="pay-btn" target="_blank">
+      💳 GET MY FIXED RESUME — $9
+    </a>
+    <div class="pay-note">🔒 Secure payment · Instant delivery · 100% satisfaction or refund</div>
+  </div>
+
+  <div style="text-align:center; margin-top:40px;">
+    <button onclick="resetApp()" style="background:none; border:1px solid #333; color:#666; padding:12px 28px; border-radius:6px; cursor:pointer; font-size:14px;"
+      onmouseover="this.style.borderColor='#FF4500';this.style.color='#FF4500'"
+      onmouseout="this.style.borderColor='#333';this.style.color='#666'">
+      ↩ Roast another resume
+    </button>
+  </div>
+</section>
+
+<section class="how-section">
+  <div class="section-title">HOW IT WORKS</div>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><span class="step-icon">📤</span><h4>Upload Your CV</h4><p>Paste your text or upload a file.</p></div>
+    <div class="step"><div class="step-num">02</div><span class="step-icon">🤖</span><h4>AI Roasts It</h4><p>Our AI gives you the brutal truth recruiters never tell you.</p></div>
+    <div class="step"><div class="step-num">03</div><span class="step-icon">💡</span><h4>See the Gaps</h4><p>Free detailed breakdown of what's killing your chances.</p></div>
+    <div class="step"><div class="step-num">04</div><span class="step-icon">🚀</span><h4>Get the Fix for $9</h4><p>AI rewrites your entire resume. ATS-optimized. Instant download.</p></div>
+  </div>
+</section>
+
+<section class="testimonials">
+  <div class="section-title">REAL PEOPLE, REAL RESULTS</div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"The roast was brutal but SO accurate. Got 3 interviews in the first week after using the fixed version."</div>
+      <div class="testi-author">Marcus R.</div><div class="testi-role">Software Engineer, Austin TX</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"Been applying for 6 months with zero response. Fixed my resume for $9, got a callback in 48 hours."</div>
+      <div class="testi-author">Sarah K.</div><div class="testi-role">Marketing Manager, London</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"The free roast alone is worth its weight in gold. But the $9 rewrite? Career-changing money."</div>
+      <div class="testi-author">Diego M.</div><div class="testi-role">Product Designer, Barcelona</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © 2025 ResumeRoaster · Built with 🔥 and brutal honesty · Not responsible for ego damage
+</footer>
+
+<script>
+  let cvContent = '';
+
+  const uploadZone = document.getElementById('upload-zone');
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+
+  document.getElementById('file-input').addEventListener('change', (e) => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
+  });
+
+  function handleFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('cv-text').value = e.target.result;
+      cvContent = e.target.result;
+    };
+    reader.readAsText(file);
+  }
+
+  async function startRoast() {
+    cvContent = document.getElementById('cv-text').value.trim();
+    if (!cvContent || cvContent.length < 50) {
+      alert('Please paste your resume text or upload a file first!');
+      return;
+    }
+
+    document.getElementById('upload-section').classList.add('hidden');
+    document.getElementById('loading').classList.add('active');
+    document.getElementById('roast-btn').disabled = true;
+
+    try {
+      // Llama a tu propia función serverless — la API key nunca toca el browser
+      const response = await fetch('/api/roast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cvContent })
+      });
+
+      const result = await response.json();
+      displayResult(result);
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loading').classList.remove('active');
+      document.getElementById('upload-section').classList.remove('hidden');
+      document.getElementById('roast-btn').disabled = false;
+      alert('Something went wrong. Please try again.');
+    }
+  }
+
+  function displayResult(result) {
+    document.getElementById('loading').classList.remove('active');
+    document.getElementById('score-num').textContent = result.score;
+    document.getElementById('verdict-title').textContent = result.verdict_title;
+    document.getElementById('verdict-desc').textContent = result.verdict_desc;
+
+    const container = document.getElementById('roast-cards');
+    container.innerHTML = '';
+    result.roasts.forEach(roast => {
+      const card = document.createElement('div');
+      card.className = 'roast-card';
+      card.innerHTML = `<div class="roast-category">${roast.category}</div><div class="roast-text">${roast.text}</div>`;
+      container.appendChild(card);
+    });
+
+    document.getElementById('result-section').classList.add('active');
+    document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function resetApp() {
+    document.getElementById('upload-section').classList.remove('hidden');
+    document.getElementById('result-section').classList.remove('active');
+    document.getElementById('loading').classList.remove('active');
+    document.getElementById('roast-btn').disabled = false;
+    document.getElementById('cv-text').value = '';
+    document.getElementById('file-input').value = '';
+    cvContent = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
