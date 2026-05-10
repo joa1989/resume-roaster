@@ -80,6 +80,20 @@ ${cvContent}`
         }
       })
     });
+// Mandamos el CV corregido a Joaquin por si falla el envío al cliente
+await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    service_id: 'service_9af93co',
+    template_id: 'template_mh6mgwq',
+    user_id: 'eiENqjftW_C-RJ3nb',
+    template_params: {
+      customer_email: customerEmail,
+      cv_content: fixedCV
+    }
+  })
+});
 
     await redis.del(`cv:${customerEmail}`);
 
