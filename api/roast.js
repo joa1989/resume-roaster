@@ -20,14 +20,21 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'CV content too short' });
   }
 
-  // Guardamos el CV en Redis con el email como key (expira en 24hs)
-  if (customerEmail) {
-    await redis.set(`cv:${customerEmail}`, cvContent, { ex: 86400 });
-  }
-
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
 
+    if (!apiKey) {
+      return res.status(500).json({ error: 'API key not configured' });
+    }
+
+    // Si viene con email guardamos el CV con ese email
+    if (customerEmail) {
+      await redis.set(`cv:${customerEmail}`, cvContent, { ex: 86400 });
+      console.log('CV saved for:', customerEmail);
+      return res.status(200).json({ saved: true });
+    }
+
+    // Si no viene email, hacemos el roast normal
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -63,6 +70,10 @@ ${cvContent}`
 
     if (data.error) {
       return res.status(500).json({ error: data.error.message });
+    }
+
+    if (!data.content || !data.content[0]) {
+      return res.status(500).json({ error: 'Unexpected API response' });
     }
 
     const rawText = data.content[0].text;
