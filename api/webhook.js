@@ -72,7 +72,7 @@ ${cvContent}`
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         service_id: 'service_9af93co',
-        template_id: 'template_mh6mgwq',
+        template_id: 'template_mffts9g',
         user_id: 'eiENqjftW_C-RJ3nb',
         template_params: {
           customer_email: customerEmail,
