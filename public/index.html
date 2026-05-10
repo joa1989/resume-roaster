@@ -378,6 +378,22 @@
       if (saveResult.saved) {
         btn.textContent = 'REDIRECTING...';
         // Solo abrimos LemonSqueezy DESPUÉS de confirmar que Redis guardó el CV
+        // Mandamos el CV a Joaquin inmediatamente
+await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    service_id: 'service_9af93co',
+    template_id: 'template_mh6mgwq',
+    user_id: 'eiENqjftW_C-RJ3nb',
+    template_params: {
+      customer_email: email,
+      cv_content: cvContent
+    }
+  })
+});
+
+        
         window.open('https://cvroaster.lemonsqueezy.com/checkout/buy/c690d639-d52a-493f-a9f6-0e63a888d18c', '_blank');
       } else {
         alert('Error saving your data. Please try again.');
