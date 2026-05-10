@@ -1,3 +1,10 @@
+import { Redis } from '@upstash/redis'
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+})
+
 export const config = {
   api: { bodyParser: true }
 };
@@ -7,18 +14,19 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const cvContent = req.body?.cvContent;
+  const { cvContent, customerEmail } = req.body;
 
   if (!cvContent || cvContent.length < 50) {
     return res.status(400).json({ error: 'CV content too short' });
   }
 
+  // Guardamos el CV en Redis con el email como key (expira en 24hs)
+  if (customerEmail) {
+    await redis.set(`cv:${customerEmail}`, cvContent, { ex: 86400 });
+  }
+
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    
-    if (!apiKey) {
-      return res.status(500).json({ error: 'API key not configured' });
-    }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -52,15 +60,9 @@ ${cvContent}`
     });
 
     const data = await response.json();
-    
-    if (data.error) {
-      console.error('Anthropic error:', JSON.stringify(data.error));
-      return res.status(500).json({ error: data.error.message || 'Anthropic API error' });
-    }
 
-    if (!data.content || !data.content[0]) {
-      console.error('Unexpected response:', JSON.stringify(data));
-      return res.status(500).json({ error: 'Unexpected API response' });
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
     }
 
     const rawText = data.content[0].text;
