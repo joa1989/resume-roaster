@@ -17,7 +17,6 @@ export default async function handler(req, res) {
   try {
     const event = req.body;
 
-    // Solo procesamos pagos completados
     if (event.meta?.event_name !== 'order_created') {
       return res.status(200).json({ received: true });
     }
@@ -28,7 +27,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ received: true });
     }
 
-    // Recuperamos el CV del cliente desde Redis
     const cvContent = await redis.get(`cv:${customerEmail}`);
 
     if (!cvContent) {
@@ -36,7 +34,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ received: true });
     }
 
-    // Generamos el CV corregido con Claude
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -49,7 +46,7 @@ export default async function handler(req, res) {
         max_tokens: 3000,
         messages: [{
           role: 'user',
-          content: `You are an expert resume writer. Rewrite this resume to be ATS-optimized, powerful, and interview-ready. 
+          content: `You are an expert resume writer. Rewrite this resume to be ATS-optimized, powerful, and interview-ready.
 
 Rules:
 - Keep all real experience and facts
@@ -70,7 +67,6 @@ ${cvContent}`
     const data = await response.json();
     const fixedCV = data.content[0].text;
 
-    // Enviamos el CV corregido al cliente via EmailJS
     await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -85,7 +81,6 @@ ${cvContent}`
       })
     });
 
-    // Borramos el CV de Redis
     await redis.del(`cv:${customerEmail}`);
 
     return res.status(200).json({ success: true });
